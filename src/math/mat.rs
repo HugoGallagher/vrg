@@ -78,6 +78,24 @@ impl Mat4 {
         }
     }
 
+    pub fn rot_from_eu(x: f32, y: f32, z: f32) -> Mat4 {
+        let mut mat = Mat4::identity();
+        
+        if x != 0.0 {
+            mat = mat * Mat4::rot_x(x);
+        }
+
+        if y != 0.0 {
+            mat = mat * Mat4::rot_y(y);
+        }
+
+        if z != 0.0 {
+            mat = mat * Mat4::rot_z(z);
+        }
+
+        mat
+    }
+
     pub fn rot_x(r: f32) -> Mat4 {
         Mat4 {
             x: Vec4::new(1.0, 0.0, 0.0, 0.0),

@@ -23,9 +23,9 @@ pub struct Sampler {
 impl Sampler {
     pub unsafe fn new(c: &Core, d: &Device, img: &ImageData) -> Sampler {
         let sampler_ci = vk::SamplerCreateInfo::builder()
-            .address_mode_u(vk::SamplerAddressMode::CLAMP_TO_BORDER)
-            .address_mode_v(vk::SamplerAddressMode::CLAMP_TO_BORDER)
-            .address_mode_w(vk::SamplerAddressMode::CLAMP_TO_BORDER)
+            .address_mode_u(vk::SamplerAddressMode::REPEAT)
+            .address_mode_v(vk::SamplerAddressMode::REPEAT)
+            .address_mode_w(vk::SamplerAddressMode::REPEAT)
             .mag_filter(vk::Filter::NEAREST)
             .min_filter(vk::Filter::NEAREST);
         

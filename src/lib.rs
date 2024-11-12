@@ -40,7 +40,6 @@ pub struct Renderer {
  
     pub layers: Vec<layer::Layer>,
     pub layer_graph: Graph<usize, LayerDependencyInfo>,
-    pub root_layer: String,
  
     pub frames: Vec<frame::Frame>,
  
@@ -75,7 +74,6 @@ impl Renderer {
 
             layers,
             layer_graph,
-            root_layer: String::from(""),
 
             frames,
 
@@ -97,8 +95,6 @@ impl Renderer {
     }
 
     pub unsafe fn draw(&mut self) {
-        assert!(self.root_layer.len() > 0, "Error: No root layer assigned");
-
         let active_frame = self.frames[self.current_frame];
 
         let present_indices = [self.present_index as u32];
@@ -111,7 +107,7 @@ impl Renderer {
 
         let mut layer_submit_infos = Vec::<LayerSubmitInfo>::with_capacity(self.layer_graph.node_count());
 
-        let mut nodes = self.layer_graph.breadth_first_backwards(&self.root_layer);
+        let mut nodes = self.layer_graph.breadth_first_backwards(None);
         nodes.reverse();
 
         let mut present_info_set = false;
@@ -206,7 +202,7 @@ impl Renderer {
     }
 
     pub fn set_root_layer(&mut self, name: &str) {
-        self.root_layer = String::from(name);
+        self.layer_graph.set_root(name.to_string());
     }
 
     pub unsafe fn add_layer_dependency(&mut self, src: &str, dst: &str, stage: vk::PipelineStageFlags) {

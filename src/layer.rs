@@ -64,7 +64,7 @@ pub struct Layer {
 
     pub pass_graph: Graph<PassRef, Option<PassDependency>>,
 
-    pub root_pass: String,
+    pub root_pass: Option<String>,
 
     pub semaphore: Semaphore,
 
@@ -83,7 +83,7 @@ impl Layer {
             graphics_passes: Vec::new(),
             compute_passes: Vec::new(),
             pass_graph: Graph::new(),
-            root_pass: String::new(),
+            root_pass: None,
             semaphore,
             present,
         }
@@ -103,8 +103,8 @@ impl Layer {
         self.pass_graph.add_edge(src_name, dst_name, dep);
     }
 
-    pub fn set_root_path(&mut self, name: &str) {
-        self.root_pass = name.to_string();
+    pub fn set_root_pass(&mut self, name: &str) {
+        self.pass_graph.set_root(name.to_string());
     }
 
     pub fn get_compute_pass(&self, name: &str) -> &ComputePass {
@@ -140,7 +140,7 @@ impl Layer {
     }
 
     pub unsafe fn record_one(&self, d: &Device, resources: &RendererData, i: usize, present_index: usize) {
-        let mut dependencies = self.pass_graph.breadth_first_backwards(&self.root_pass);
+        let mut dependencies = self.pass_graph.breadth_first_backwards(None);
         dependencies.reverse();
 
         self.commands.record_one(d, i, |b| {
@@ -201,7 +201,7 @@ impl Layer {
                                 d.device.cmd_bind_vertex_buffers(b, 0, &[vb.buffer], &[0]);
                             }
 
-                            if pass.indexed {
+                            if pass.indexed && vbw.index_buffer.is_some() && vbw.index_size.is_some() {
                                 d.device.cmd_bind_index_buffer(b, vbw.index_buffer.unwrap().buffer, 0, vbw.index_size.unwrap());
                             }
                         }

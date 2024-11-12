@@ -16,6 +16,7 @@ pub struct Graph<T, U: Copy> {
     nodes: Vec<Node<T>>,
     edges: Vec<Edge<U>>,
 
+    root: Option<String>,
     node_refs: HashMap<String, usize>,
     src_edge_refs: HashMap<String, Vec<(usize, usize)>>, // Key is src node, values are dst nodes, .0 is node refs, .1 is edge refs
     dst_edge_refs: HashMap<String, Vec<(usize, usize)>>, // Key is dst_node, values are src nodes, .0 is node refs, .1 is edge refs
@@ -27,9 +28,28 @@ impl <T, U: Copy> Graph<T, U> {
             nodes: Vec::new(),
             edges: Vec::new(),
 
+            root: None,
             node_refs: HashMap::new(),
             src_edge_refs: HashMap::new(),
             dst_edge_refs: HashMap::new(),
+        }
+    }
+
+    pub fn empty(&self) -> bool {
+        return self.nodes.len() == 0;
+    }
+
+    pub fn set_root(&mut self, name: String) {
+        self.root = Some(name.clone());
+    }
+
+    pub fn get_root(&self) -> String {
+        assert!(!self.empty(), "Error: Graph is empty");
+        
+        if let Some(root_pass_name) = &self.root {
+            root_pass_name.clone()
+        } else {
+            self.node_refs.keys().next().unwrap().to_string()
         }
     }
 
@@ -128,7 +148,10 @@ impl <T, U: Copy> Graph<T, U> {
         }).collect()
     }
 
-    pub fn breadth_first_forwards(&self, root: &str) -> Vec<&Node<T>> {
+    pub fn breadth_first_forwards(&self, root_name: Option<&str>) -> Vec<&Node<T>> {
+        let root_default = self.get_root();
+        let root = root_name.unwrap_or(&root_default);
+        
         const MAX_ITERATIONS: u32 = 1000;
 
         let mut tree = vec![self.get_node(root)];
@@ -160,7 +183,10 @@ impl <T, U: Copy> Graph<T, U> {
         tree
     }
 
-    pub fn breadth_first_backwards(&self, root: &str) -> Vec<&Node<T>> {
+    pub fn breadth_first_backwards(&self, root_name: Option<&str>) -> Vec<&Node<T>> {
+        let root_default = self.get_root();
+        let root = root_name.unwrap_or(&root_default);
+        
         const MAX_ITERATIONS: u32 = 1000;
 
         let mut tree = vec![self.get_node(root)];
